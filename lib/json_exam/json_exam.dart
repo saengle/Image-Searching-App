@@ -1,92 +1,112 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:json_exam/json_exam/components/data.dart';
 
-class JsonExam extends StatelessWidget {
-  const JsonExam({Key? key}) : super(key: key);
+class ImageSearching extends StatefulWidget {
+  const ImageSearching({Key? key}) : super(key: key);
+
+  @override
+  State<ImageSearching> createState() => ImageSearchingMain();
+}
+
+class ImageSearchingMain extends State<ImageSearching> {
+  // const ImageSearchingMain({Key? key}) : super(key: key);
+
+  DataCollection dataCollection = DataCollection();
+  List<Map<String, dynamic>> data = [];
+  Map<String, dynamic>? person;
+
+
+  @override
+  void initState() {
+    super.initState();
+    initData();
+  }
+
+  Future initData() async {
+    person = await getData();
+    data = await getImages();
+    setState(() {});
+  }
+
+  Future<Map<String, dynamic>> getData() async {
+    await Future.delayed(const Duration(seconds: 2));
+    String jsonString = '{ "name": "홍길동", "email": "aaa@aaa.com"}';
+    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    return jsonMap;
+  }
+
+  Future<List<Map<String, dynamic>>> getImages() async {
+    await Future.delayed(const Duration(seconds: 2));
+    List<Map<String, dynamic>> hits = dataCollection.jsonData['hits'];
+    return hits;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text(
-            'Image Searching App',
-            style: TextStyle(fontSize: 20),
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Center(
+            child: Text(
+              'Image Searching App',
+              style: TextStyle(fontSize: 20),
+            ),
           ),
         ),
-      ),
-      body: Center(
-        child: Column(
-          children:  [
-            const Center(
-              child: TextField(
-                decoration: InputDecoration(
-                    icon: Icon(Icons.search),
-                    hintText: 'apple',
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(2.0)),
-                        borderSide: BorderSide(
-                          color: Colors.grey,
+        body: Center(
+          child: Column(
+            children: [
+              mySizeBox(),
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                        suffixIcon: Icon(Icons.search),
+                        hintText: 'apple',
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(
+                              color: Colors.grey,
+                            )),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          borderSide: BorderSide(color: Colors.white),
                         )),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      borderSide: BorderSide(color: Colors.white),
-                    )),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 15,),
-            Expanded(
-              child: GridView.count(
-                padding: const EdgeInsets.all(5),
-                primary: false,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                crossAxisCount: 3,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    color: Colors.black,
-                    child: const Text("He'd have you all unravel at the"),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    color: Colors.black12,
-                    child: const Text('Heed not the rabble'),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    color: Colors.black26,
-                    child: const Text('Sound of screams but the'),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    color: Colors.black38,
-                    child: const Text('Who scream'),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    color: Colors.black45,
-                    child: const Text('Revolution is coming...'),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    color: Colors.black87,
-                    child: const Text('Revolution, they...'),
-                  ),
-                ],
-              ),
-            )
-          ],
+              mySizeBox(),
+              Expanded(
+                child: GridView.builder(
+                  itemCount: data.length,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,),
+                  itemBuilder: (BuildContext context, int index) {
+                    Map<String, dynamic> image = data[index];
+                    return Image.network(image['previewURL'],
+                            fit: BoxFit.cover);
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Future<Map<String, dynamic>> getData() async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    String jsonString = '{ "name": "홍길동", "email": "aaa@aaa.com"}';
-    Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    return jsonMap;
+  Widget mySizeBox() {
+    return const SizedBox(
+      height: 10,
+    );
   }
+
+
 }
